@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RainWatch – Early Warning (Demo)</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF1F4;--card:#fff;--ink:#12222D;--mut:#5E7180;--line:#DCE4EA;--acc:#1D5FD1;--n:#2E9E6B;--w:#E8B923;--wa:#EE7F1E;--s:#D93A33;--c:#8E1B5B;--land:#E4EBE1;--chip:#E5EDF7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D161D;--card:#16232D;--ink:#E7EEF3;--mut:#93A6B5;--line:#263845;--acc:#6FA2FF;--land:#1A2924;--chip:#1F3145}}
+:root[data-theme="dark"]{--bg:#0D161D;--card:#16232D;--ink:#E7EEF3;--mut:#93A6B5;--line:#263845;--acc:#6FA2FF;--land:#1A2924;--chip:#1F3145}
+*{box-sizing:border-box}html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.4 Figtree,system-ui,sans-serif}
+#app{max-width:440px;height:100%;margin:0 auto;display:flex;flex-direction:column;background:var(--bg);position:relative;overflow:hidden}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 6px}
+h1{font-size:18px;margin:0;font-weight:800}h2{font-size:15px;margin:0 0 8px;font-weight:700}
+.demo{font-size:12px;font-weight:700;background:var(--chip);color:var(--acc);padding:4px 10px;border-radius:99px}
+#sim{display:flex;align-items:center;gap:10px;margin:4px 16px 8px;padding:8px 12px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+#sim button{width:36px;height:36px;border-radius:50%;border:0;background:var(--acc);color:#fff;font-size:15px}
+#sim .m{flex:1;min-width:0}#sim b{font-size:13px}#sim small{display:block;color:var(--mut);font-size:12px}
+input[type=range]{width:100%;accent-color:var(--acc);margin:2px 0 0}
+main{flex:1;overflow-y:auto;padding:0 16px 16px;-webkit-overflow-scrolling:touch}
+nav{display:flex;border-top:1px solid var(--line);background:var(--card)}
+nav button{flex:1;border:0;background:none;padding:8px 0 10px;color:var(--mut);font:inherit;font-size:12px;position:relative}
+nav button i{display:block;font-style:normal;font-size:19px;line-height:1.2}nav button.on{color:var(--acc);font-weight:700}
+nav .bd{position:absolute;top:4px;left:56%;background:var(--s);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;line-height:16px;border-radius:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.hero{border-radius:20px;padding:18px;margin-bottom:12px}.hero .big{font-size:34px;font-weight:800;line-height:1.05}
+.hero p{margin:6px 0 0;opacity:.95}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px}.kpi b{font-size:22px;font-weight:800;display:block}
+.kpi span{font-size:12px;color:var(--mut)}.mut{color:var(--mut);font-size:13px}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin:4px 0 10px}.bar div{height:100%;background:var(--acc)}
+.warn{background:#FFF4DC;color:#5A4200;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:13px}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700;color:#fff}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.btn{border:1px solid var(--acc);background:none;color:var(--acc);border-radius:10px;padding:7px 12px;font:inherit;font-weight:700;font-size:13px}
+.btn.f{background:var(--acc);color:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:5px 12px;font:inherit;font-size:13px}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.map{width:100%;border-radius:16px;border:1px solid var(--line);display:block;background:var(--land)}
+.leg{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:8px}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+#sheet{position:absolute;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end}
+#sheet.on{display:flex}#sheet .in{background:var(--bg);width:100%;max-height:86%;overflow-y:auto;border-radius:22px 22px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.tl{position:relative;height:10px;background:linear-gradient(90deg,var(--n) 0 36%,var(--w) 36% 55%,var(--wa) 55% 73%,var(--s) 73% 82%,var(--c) 82%);border-radius:5px;margin:8px 0 4px}
+.tl i{position:absolute;top:-4px;width:4px;height:18px;background:var(--ink);border-radius:2px;transform:translateX(-2px)}
+.sw{display:flex;align-items:center;justify-content:space-between;padding:6px 0}
+@media (prefers-reduced-motion:no-preference){.hero{transition:background .5s}}
+
+:root{--navy:#0B1F4B;--head:#0B1F4B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--head:#9DBBFF}}
+:root[data-theme="dark"]{--head:#9DBBFF}
+header{background:var(--navy);color:#fff;gap:10px;justify-content:flex-start;padding:12px 14px}
+header h1{color:#fff;font-size:16px;line-height:1.1}header .s{font-size:12px;opacity:.75}
+header .demo{margin-left:auto;background:rgba(255,255,255,.16);color:#fff}
+#mb{background:none;border:0;color:#fff;font-size:24px;padding:0 4px}
+#fl{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--navy);padding:0 14px 12px;margin-bottom:8px;color:#fff;font-size:13px}
+#fl label{display:flex;align-items:center;gap:6px}#fl select{background:#fff;color:#12222D;border:0;border-radius:8px;padding:6px 8px;font:inherit}
+#dr{position:absolute;inset:0;background:rgba(0,0,0,.45);display:none;z-index:5}#dr.on{display:block}
+#dp{width:78%;height:100%;background:var(--navy);color:#fff;padding:16px 0}.dh{font-weight:800;font-size:16px;padding:0 16px 14px}
+#dl button{display:flex;gap:12px;align-items:center;width:calc(100% - 20px);margin:2px 10px;border:0;background:none;color:#fff;font:inherit;padding:12px;border-radius:10px;text-align:left}
+#dl button.on{background:#1D5FD1}#dl i{font-style:normal;width:20px}
+.card h2{color:var(--head)}
+.mw{position:relative}.mw .map{background:#34402D}
+.zm{position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px}
+.zm button{width:32px;height:32px;border-radius:8px;border:0;background:#fff;color:#12222D;font-size:20px}
+.lg2{position:absolute;right:8px;top:8px;background:#fff;color:#12222D;border-radius:10px;padding:6px 8px;font-size:10px;line-height:1.5}
+.lg2 b{display:block;margin-bottom:2px}.lg2 i{display:inline-block;width:14px;height:10px;margin-right:6px;border-radius:2px;vertical-align:middle}
+.fr{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.fr:last-child{border:0}
+.fr .ic{font-size:30px;width:40px;text-align:center}.fr small{display:block;color:var(--mut);font-size:13px}.fr b{font-size:20px}
+</style></head><body>
+<div id="app">
+<header><button id="mb" onclick="drawer(1)" aria-label="Open menu">☰</button><div><h1>Flood Early Warning</h1><span class="s">and Inundation Prediction System</span></div><span class="demo">DEMO</span></header>
+<div id="fl"><label>District <select onchange="S.d=this.value;S.dm=DIST[this.value];draw()"><option>Pune</option><option>Kolhapur</option><option>Satara</option><option>Solapur</option></select></label><span id="dt"></span></div>
+<div id="dr" onclick="if(event.target===this)drawer(0)"><div id="dp"><div class="dh">🛡 Flood Early Warning</div><div id="dl"></div></div></div>
+<div id="sim"><button id="pb" aria-label="Play or pause" onclick="toggle()">▶</button>
+<div class="m"><b id="st"></b><small id="ss"></small><input id="sl" type="range" min="0" max="18" value="0" aria-label="Event time" oninput="S.t=+this.value;S.play=false;draw()"></div></div>
+<main id="main"></main>
+<nav id="nav"></nav>
+<div id="sheet" onclick="if(event.target===this)this.classList.remove('on')"><div class="in" id="sin"></div></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),N=18;
+const LV=['Normal','Watch','Warning','Severe','Critical'],C=['var(--n)','var(--w)','var(--wa)','var(--s)','var(--c)'];
+const ADV=['No action needed. Conditions are normal.','Stay informed. Check drains and the next forecast.','Prepare to move valuables. Avoid low-lying roads.','Move to higher ground if you are near the river.','Evacuate low-lying areas now. Follow official instructions.'];
+let TH=[0,.15,.35,.55,.75];
+const DIST={Pune:1,Kolhapur:1.15,Satara:.95,Solapur:.7};
+const S={t:0,dm:1,d:'Pune',z:1,play:false,tab:'home',ly:{rain:1,risk:1,flood:1,gauge:1},ack:{},outage:false};
+const R=i=>i<0?0:+((3+48*Math.exp(-((i-6)**2)/8))*S.dm).toFixed(1);
+const acc=(t,h)=>{let s=0;for(let i=t-h+1;i<=t;i++)s+=R(i);return s};
+const fc=(t,h)=>{let s=0;for(let i=t+1;i<=t+h;i++)s+=R(i);return s*.9};
+const lvl=t=>+(2.1+.028*acc(t-1,8)).toFixed(2);
+function M(t){const A=acc(t,6),F=fc(t,3),L=lvl(t),a=.35*A/220,f=.15*Math.min(F/120,1.2),l=.5*(L-2.1)/6.5,s=a+f+l;
+ return{A,F,L,a,f,l,rain:R(t),p:1/(1+Math.exp(-9*(s-.5))),conf:clamp(.62+.3*Math.min(1,t/8)-(S.outage?.18:0),0,1),area:Math.max(0,L-4.5)*3.1}}
+const cls=p=>{let k=0;TH.forEach((v,i)=>{if(i&&p>=v)k=i});return k};
+const hh=t=>String((6+t)%24).padStart(2,'0')+':00';
+const pc=v=>Math.round(v*100)+'%';
+const RV=[[330,0],[270,70],[215,120],[175,150],[130,205],[95,250],[40,300]],RP=RV.map(p=>p.join(',')).join(' ');
+function dist(x,y){let d=1e9;for(let i=0;i<6;i++)for(let k=0;k<=10;k++)d=Math.min(d,Math.hypot(RV[i][0]+(RV[i+1][0]-RV[i][0])*k/10-x,RV[i][1]+(RV[i+1][1]-RV[i][1])*k/10-y));return d}
+const sus=(x,y)=>clamp(Math.exp(-dist(x,y)/60)*.95+.1,0,1);
+const SITES=[{n:'Riverside Town',x:200,y:142,f:1.05,rf:1,pop:12400},{n:'Mill Bridge',x:112,y:228,f:1,rf:1.1,pop:3800},{n:'North Ford',x:248,y:92,f:.8,rf:.9,pop:2100}];
+const alerts=t=>{const o=[];for(let k=1;k<=4;k++)for(let i=0;i<=t;i++)if(cls(M(i).p)>=k){o.push({k,at:i});break}return o.reverse()};
+function spark(v,w,h,mx,mk,ln){const x=i=>i*(w-4)/N+2,y=a=>h-3-a/mx*(h-8);
+ return`<svg viewBox="0 0 ${w} ${h}" width="100%">${(ln||[]).map(l=>`<line x1="0" x2="${w}" y1="${y(l[0])}" y2="${y(l[0])}" stroke="${l[1]}" stroke-dasharray="3 3"/>`).join('')}<polyline fill="none" stroke="var(--acc)" stroke-width="2.5" points="${v.map((a,i)=>x(i)+','+y(a)).join(' ')}"/><line x1="${x(mk)}" x2="${x(mk)}" y1="0" y2="${h}" stroke="var(--ink)" opacity=".5"/><circle cx="${x(mk)}" cy="${y(v[mk])}" r="4" fill="var(--acc)"/></svg>`}
+function bars(t){const w=320,h=90,bw=w/(N+1);return`<svg viewBox="0 0 ${w} ${h+14}" width="100%">${Array.from({length:N+1},(_,i)=>{const v=R(i)*(i<=t?1:.9),bh=Math.min(h,v/55*h);return`<rect x="${i*bw+2}" y="${h-bh}" width="${bw-4}" height="${bh}" rx="2" fill="var(--acc)" opacity="${i<=t?1:.3}"/>`}).join('')}<text x="2" y="${h+12}" font-size="10" fill="var(--mut)">${hh(0)}</text><text x="${w-2}" y="${h+12}" font-size="10" fill="var(--mut)" text-anchor="end">${hh(N)}</text></svg>`}
+const TERR=`<rect width="360" height="300" fill="#34402D"/><ellipse cx="60" cy="60" rx="90" ry="50" fill="#2A3626"/><ellipse cx="300" cy="230" rx="100" ry="60" fill="#3E4C33"/><ellipse cx="190" cy="150" rx="70" ry="45" fill="#565A55" opacity=".8"/><ellipse cx="90" cy="230" rx="40" ry="25" fill="#565A55" opacity=".6"/><path d="M0 120 Q120 110 200 145 T360 190M60 0 Q90 120 200 145" stroke="#8A8F86" stroke-width="1.2" fill="none" opacity=".7"/>`;
+function mapSVG(m,mode,mini){const inu=mode=='inund',ly=inu?{rain:0,risk:0,flood:1,gauge:0}:S.ly,k=cls(m.p),d=Math.max(0,m.L-4.5);let g=TERR;
+ if(ly.risk)for(let r=0;r<6;r++)for(let c=0;c<8;c++){const q=cls(m.p*(.35+.65*sus(c*45+22,r*50+25)));if(q)g+=`<rect x="${c*45}" y="${r*50}" width="45" height="50" fill="${C[q]}" opacity=".4"/>`}
+ if(ly.rain)[[280-S.t*7,80],[190-S.t*4,130],[130+S.t*2,60]].forEach(b=>g+=`<circle cx="${b[0]}" cy="${b[1]}" r="62" fill="url(#rg)" opacity="${clamp(m.rain/(45*S.dm),.05,1)}"/>`);
+ g+=`<polyline points="${RP}" fill="none" stroke="#1B4B9B" stroke-width="5" stroke-linejoin="round"/>`;
+ if(ly.flood)[['#BFE4FA',0.05,1],['#7CC4F5',.5,.78],['#2F86F0',1,.55],['#5B3FD6',2,.34],['#C4161C',3,.18]].forEach((a,i)=>{if(d>=a[1])g+=`<polyline points="${RP}" fill="none" stroke="${a[0]}" stroke-width="${(8+d*13)*a[2]}" stroke-linecap="round" stroke-linejoin="round" opacity=".88"${i==0?' filter="url(#bl)"':''}/>`});
+ if(ly.gauge)[1,3,5].forEach(i=>g+=`<rect x="${RV[i][0]-6}" y="${RV[i][1]-6}" width="12" height="12" rx="3" fill="${C[cls(m.p*(i==3?1:.85))]}" stroke="#fff" stroke-width="2"/>`);
+ SITES.forEach((s,i)=>g+=`<g onclick="loc(${i})"><circle cx="${s.x}" cy="${s.y}" r="6" fill="#fff" stroke="#12222D" stroke-width="2.5"/><text x="${s.x+10}" y="${s.y+14}" font-size="10" font-weight="700" fill="#fff" stroke="#000" stroke-width="2.5" paint-order="stroke">${s.n}</text></g>`);
+ if(k>=2)g+=`<g transform="translate(200 142)" pointer-events="none"><path d="M0 0C-12-14-12-26 0-26S12-14 0 0Z" fill="#D93A33" stroke="#fff" stroke-width="1.5"/><circle cy="-17" r="3.5" fill="#fff"/><rect x="14" y="-34" width="${k>=3?86:78}" height="18" rx="4" fill="${C[k]}"/><text x="19" y="-21" font-size="10.5" font-weight="700" fill="#fff">${k>=3?'High Risk Area':'Warning Area'}</text></g>`;
+ const z=inu&&mini?1:S.z,w=360/z,h=300/z,x=clamp(200-w/2,0,360-w),y=clamp(142-h/2,0,300-h);S.vb=[x,y,w,h];
+ return`<svg id="mp" class="map" viewBox="${x} ${y} ${w} ${h}" onclick="${mini?"if(!event.target.closest('g'))go('inund')":'cell(event)'}"><defs><radialGradient id="rg"><stop offset="0" stop-color="#5B3FD6"/><stop offset=".55" stop-color="#3E7BE6" stop-opacity=".6"/><stop offset="1" stop-color="#3E7BE6" stop-opacity="0"/></radialGradient><filter id="bl"><feGaussianBlur stdDeviation="3"/></filter></defs>${g}</svg>`}
+function mapWrap(mode,m,mini){return`<div class="mw">${mapSVG(m,mode,mini)}${mini?'':`<div class="zm"><button onclick="S.z=Math.min(2.4,S.z*1.5);draw()" aria-label="Zoom in">+</button><button onclick="S.z=Math.max(1,S.z/1.5);draw()" aria-label="Zoom out">−</button></div>`}<div class="lg2"><b>Inundation Depth (m)</b>${[['#C4161C','> 3.0'],['#5B3FD6','2.0 – 3.0'],['#2F86F0','1.0 – 2.0'],['#7CC4F5','0.5 – 1.0'],['#BFE4FA','< 0.5']].map(a=>`<div><i style="background:${a[0]}"></i>${a[1]}</div>`).join('')}</div></div>`}
+function cell(e){if(e.target.closest('g'))return;const b=$('#mp').getBoundingClientRect(),v=S.vb,x=v[0]+(e.clientX-b.left)/b.width*v[2],y=v[1]+(e.clientY-b.top)/b.height*v[3],c=clamp(Math.floor(x/45),0,7),r=clamp(Math.floor(y/50),0,5);
+ loc({n:`Grid cell ${'ABCDEFGH'[c]}${r+1}`,x,y,f:.35+.65*sus(x,y),rf:1,pop:Math.round(300+sus(x,y)*1500)})}
+const MENU=[['home','▦','Dashboard'],['map','◎','Live Map'],['rain','☂','Rainfall Forecast'],['rivers','≈','River Water Level'],['inund','▤','Inundation Map'],['risk','◭','Risk Prediction'],['alerts','⚑','Alerts'],['report','▣','Reports'],['more','⚙','Settings']];
+function go(t){S.tab=t;S.z=1;drawer(0);draw();$('#main').scrollTop=0}
+function drawer(o){$('#dr').classList.toggle('on',!!o);if(o)$('#dl').innerHTML=MENU.map(x=>`<button class="${S.tab==x[0]?'on':''}" onclick="go('${x[0]}')"><i>${x[1]}</i>${x[2]}</button>`).join('')}
+const factors=m=>{const F=[['Recent rainfall',m.a],['River level',m.l],['Forecast rain',m.f]],tot=m.a+m.f+m.l;return`<div class="card"><h2>Why this risk</h2>${F.map(a=>`<div class="row"><span>${a[0]}</span><b>${Math.round(a[1]/tot*100)}%</b></div><div class="bar"><div style="width:${a[1]/tot*100}%"></div></div>`).join('')}<p class="mut" style="margin:0">Shows statistical influence, not proven cause.</p></div>`};
+const scale=m=>`<div class="card"><h2>Risk level</h2><div class="tl" style="background:linear-gradient(90deg,var(--n) ${TH[1]*100}%,var(--w) ${TH[1]*100}% ${TH[2]*100}%,var(--wa) ${TH[2]*100}% ${TH[3]*100}%,var(--s) ${TH[3]*100}% ${TH[4]*100}%,var(--c) ${TH[4]*100}%)"><i style="left:${m.p*100}%"></i></div><div class="row mut"><span>Low</span><span>Moderate</span><span>High</span><span>Critical</span></div><p style="margin:8px 0 0"><b>${LV[cls(m.p)]}</b> · ${pc(m.p)} probability</p></div>`;
+function loc(s){if(typeof s=='number')s=SITES[s];const t=S.t,m=M(t),f=h=>clamp(M(Math.min(N,t+h)).p*s.f,0,.99);
+ const pk=Array.from({length:N-t+1},(_,i)=>t+i).reduce((a,b)=>M(b).p>=M(a).p?b:a,t),pp=clamp(m.p*s.f,0,.99),k=cls(pp);
+ let ld=null;for(let h=0;h<=N-t;h++)if(cls(clamp(M(t+h).p*s.f,0,.99))>=2){ld=h;break}
+ const tot=m.a+m.f+m.l+.06,F=[['Recent rainfall (6h)',m.a],['River level',m.l],['Forecast rainfall (3h)',m.f],['Terrain & history',.06]];
+ $('#sin').innerHTML=`<div class="row"><h1>${s.n}</h1><button class="btn" onclick="$('#sheet').classList.remove('on')">Close</button></div>
+ <p class="mut" style="margin:2px 0 10px">Demo grid x${Math.round(s.x)} · y${Math.round(s.y)} · updated ${hh(t)}</p>
+ <div class="card" style="background:${C[k]};color:${k==1?'#1b1500':'#fff'};border:0"><b style="font-size:24px">${LV[k]}</b><div>Flood probability ${pc(pp)} · confidence ${pc(m.conf)}</div><div>${ld===null?'No warning-level risk expected':ld===0?'Warning conditions now':'Warning level in about '+ld+'h'} · peak near ${hh(pk)}</div></div>
+ <div class="card"><h2>Now and forecast</h2><table><tr><td>Rain now</td><td>${(m.rain*s.rf).toFixed(1)} mm/h</td></tr><tr><td>6h accumulation</td><td>${Math.round(m.A*s.rf)} mm</td></tr><tr><td>Next 3h forecast</td><td>${Math.round(m.F*s.rf)} mm</td></tr><tr><td>Flood probability +1h / +3h / +6h</td><td>${pc(f(1))} / ${pc(f(3))} / ${pc(f(6))}</td></tr><tr><td>Predicted inundation</td><td>${k>=2?'Likely, depth about '+(0.3+(m.L-4.5)*.25*s.f).toFixed(1)+' m':'Not expected'}</td></tr><tr><td>People nearby</td><td>~${s.pop.toLocaleString()}</td></tr></table></div>
+ <div class="card"><h2>Why this prediction</h2>${F.map(a=>`<div class="row"><span>${a[0]}</span><b>${Math.round(a[1]/tot*100)}%</b></div><div class="bar"><div style="width:${a[1]/tot*100}%"></div></div>`).join('')}<p class="mut" style="margin:0">Factors show statistical influence in the model, not proven cause.</p></div>
+ <div class="card"><h2>Observed vs forecast rain</h2>${bars(t)}</div><div class="card"><h2>What to do</h2>${ADV[k]}</div>`;$('#sheet').classList.add('on')}
+const V={
+home(){const t=S.t,m=M(t),k=cls(m.p),al=alerts(t);
+ let ld=null;for(let h=0;h<=N-t;h++)if(cls(M(t+h).p)>=2){ld=h;break}
+ const f6=Math.round(fc(t,6)),L=m.L,rs=L>=9?['Danger',3]:L>=8?['Near Danger',3]:L>=6?['Rising',2]:L>=4?['Elevated',1]:['Normal',0],rr=f6>=100?3:f6>=50?2:f6>=20?1:0,
+ et=k>=2?'Now':ld===null?'None expected':ld+'–'+(ld+3)+' hours',ec=k>=2?3:ld===null?0:1,cr=[1,3,5].filter(i=>cls(m.p*(i==3?1:.85))>=3).length,v=Array.from({length:N+1},(_,i)=>lvl(i));
+ return`${S.outage?'<div class="warn"><b>Degraded:</b> River gauge 2 is offline. Predictions use fewer inputs and confidence is lower.</div>':'<div class="warn"><b>Data note:</b> NWP forecast is 42 min old. Predictions still running normally.</div>'}
+ <div class="hero" style="background:${C[k]};color:${k==1?'#1b1500':'#fff'}"><div>Flood risk · ${S.d} · ${hh(t)}</div><div class="big">${LV[k]}</div><p><b>${pc(m.p)}</b> flood probability · confidence ${pc(m.conf)}</p><p>${ADV[k]}</p></div>
+ <div class="card" style="padding:8px">${mapWrap('inund',m,1)}<p class="mut" style="margin:6px 4px 0">Tap the map for the full inundation view.</p></div>
+ <div class="card"><h2>Current forecast (next 6 hours)</h2>${[['🌧️','Heavy rainfall',f6+' mm',rr],['🌊','River level',rs[0],rs[1]],['⚠️','Flood risk',LV[k],k],['🕒','Expected time',et,ec]].map(a=>`<div class="fr"><span class="ic">${a[0]}</span><div><small>${a[1]}</small><b style="color:${C[a[3]]}">${a[2]}</b></div></div>`).join('')}</div>
+ <div class="grid"><div class="kpi"><b>${m.rain}</b><span>Rain now (mm/h)</span></div><div class="kpi"><b>${m.L.toFixed(1)} m</b><span>River level</span></div><div class="kpi"><b>${al.filter(a=>!S.ack[a.k]).length}</b><span>Unacknowledged alerts</span></div><div class="kpi"><b>${m.area.toFixed(1)} km²</b><span>Est. flooded area</span></div></div>
+ <div class="card"><h2>Rainfall forecast (mm)</h2>${bars(t)}<p class="mut" style="margin:6px 0 0">Solid bars are observed. Faded bars are forecast.</p></div>
+ <div class="card"><h2>River water level (m)</h2>${spark(v,300,70,11,t,[[6,'#EE7F1E'],[9,'#8E1B5B']])}<p class="mut" style="margin:4px 0 0">Dashed lines: warning 6 m, critical 9 m.</p></div>
+ ${scale(m)}${factors(m)}
+ <button class="btn f" style="width:100%;padding:12px" onclick="S.t=0;S.play=true;draw()">Replay demo event</button>`},
+map(){const m=M(S.t),L=[['rain','Rainfall'],['risk','Risk'],['flood','Inundation'],['gauge','Gauges']];
+ return`<div class="chips">${L.map(l=>`<button class="chip ${S.ly[l[0]]?'on':''}" onclick="S.ly.${l[0]}^=1;draw()">${l[1]}</button>`).join('')}</div>${mapWrap('live',m)}
+ <div class="leg" style="margin:8px 0">${LV.map((n,i)=>`<span><i style="background:${C[i]}"></i>${n}</span>`).join('')}</div><p class="mut">Tap a town or any map cell for details. Updated ${hh(S.t)}.</p>`},
+inund(){const m=M(S.t),d=Math.max(0,m.L-4.5),pk=Array.from({length:N+1},(_,i)=>i).reduce((a,b)=>M(b).area>M(a).area?b:a,0);
+ return`${mapWrap('inund',m)}<div class="card" style="margin-top:12px"><h2>Predicted inundation</h2><table><tr><td>Max depth (est.)</td><td>${d.toFixed(1)} m</td></tr><tr><td>Flooded area</td><td>${m.area.toFixed(1)} km²</td></tr><tr><td>People affected</td><td>~${Math.round(m.area*850).toLocaleString()}</td></tr><tr><td>Peak flooding</td><td>near ${hh(pk)}</td></tr><tr><td>Confidence</td><td>${pc(m.conf)}</td></tr></table></div>`},
+rain(){const t=S.t;return`<div class="card"><h2>Rainfall forecast (mm/h)</h2>${bars(t)}<p class="mut" style="margin:6px 0 0">Solid bars are observed. Faded bars are forecast.</p></div><div class="card"><h2>Rainfall totals (mm)</h2><table><tr><th>Window</th><th>Observed</th><th>Forecast</th></tr>${[1,3,6,12].map(h=>`<tr><td>${h}h</td><td>${Math.round(acc(t,h))}</td><td>${Math.round(fc(t,h))}</td></tr>`).join('')}</table><p class="mut">Forecast is bias-corrected by the demo rainfall model.</p></div>`},
+risk(){const t=S.t,m=M(t);return`${scale(m)}<div class="card"><h2>Flood probability ahead</h2>${[1,3,6,12].map(h=>{const q=M(Math.min(N,t+h)).p;return`<div class="row"><span>In ${h}h</span><b>${LV[cls(q)]} · ${pc(q)}</b></div><div class="bar"><div style="width:${q*100}%;background:${C[cls(q)]}"></div></div>`}).join('')}</div>${factors(m)}`},
+report(){const t=S.t,m=M(t),k=cls(m.p),txt=`Situation report – ${S.d} district, 12 Sep 2026 ${hh(t)}\nRisk: ${LV[k]} (${pc(m.p)}, confidence ${pc(m.conf)})\nRain now ${m.rain} mm/h; next 6h forecast ${Math.round(fc(t,6))} mm\nRiver level ${m.L.toFixed(1)} m\nEst. flooded area ${m.area.toFixed(1)} km²; people at risk ~${Math.round(m.area*850)}\nAlerts issued: ${alerts(t).length}\nAdvice: ${ADV[k]}\nDemo data – simulated.`;
+ return`<div class="card"><h2>Situation report</h2><pre style="white-space:pre-wrap;font:inherit;margin:0">${txt}</pre><button class="btn f" style="margin-top:12px" onclick="try{navigator.clipboard.writeText($('main pre').textContent)}catch(e){};this.textContent='Copied'">Copy report</button></div>`},
+rivers(){const G=[['Upper Ford',t=>lvl(Math.max(0,t-1))*.8+.4],['Riverside gauge',lvl],['Mill Bridge',t=>lvl(Math.max(0,t-1))+.3]],LT=[[4,'#E8B923'],[6,'#EE7F1E'],[8,'#D93A33'],[9,'#8E1B5B']];
+ return G.map((g,gi)=>{const v=Array.from({length:N+1},(_,i)=>g[1](i)),c=v[S.t],r=c-v[Math.max(0,S.t-1)],q=LT.filter(l=>c>=l[0]).length,off=S.outage&&gi==0;
+ return`<div class="card"><div class="row"><h2 style="margin:0">${g[0]}</h2>${off?'<span class="pill" style="background:var(--mut)">Offline</span>':`<span class="pill" style="background:${C[q]};color:${q==1?'#1b1500':'#fff'}">${LV[q]}</span>`}</div>
+ <div class="row" style="margin:6px 0"><b style="font-size:26px">${off?'—':c.toFixed(1)+' m'}</b><span class="mut">${off?'No data':(r>=0?'▲ ':'▼ ')+Math.abs(r).toFixed(2)+' m/h'}</span></div>${off?'':spark(v,300,70,11,S.t,LT)}<p class="mut" style="margin:4px 0 0">Dashed lines: watch 4 m, warning 6 m, severe 8 m, critical 9 m.</p></div>`}).join('')},
+alerts(){const a=alerts(S.t),now=cls(M(S.t).p);
+ return a.length?a.map(x=>`<div class="card" style="border-left:6px solid ${C[x.k]}"><div class="row"><b>${LV[x.k]} · flood risk</b><span class="pill" style="background:${now>=x.k?C[x.k]:'var(--mut)'};color:${x.k==1&&now>=1?'#1b1500':'#fff'}">${now>=x.k?'Active':'Expired'}</span></div>
+ <p style="margin:6px 0">${ADV[x.k]}</p><p class="mut" style="margin:0">Issued ${hh(x.at)} · ${pc(M(x.at).conf)} confidence · rule: probability ≥ ${pc(TH[x.k])}<br>Model demo-baseline v0.3 · data: gauges, NWP, terrain · version 1</p>
+ <div class="row" style="margin-top:10px"><span class="mut">${S.ack[x.k]?'Acknowledged by you':'Waiting for acknowledgement'}</span>${S.ack[x.k]?'':`<button class="btn f" onclick="S.ack[${x.k}]=1;draw()">Acknowledge</button>`}</div></div>`).join(''):
+ `<div class="card"><b>No active alerts.</b><p class="mut" style="margin:6px 0 0">Press play or drag the time slider to run the demo event. Alerts appear when risk crosses your thresholds.</p></div>`},
+more(){const src=[['Rain gauges (5 min)','ok','2 min ago'],['River gauges',S.outage?'bad':'ok',S.outage?'1 of 3 offline':'1 min ago'],['NWP forecast','stale','42 min old'],['Terrain & land use','ok','Static'],['Radar','off','Phase 2'],['Satellite','off','Phase 2']],col={ok:'var(--n)',bad:'var(--s)',stale:'var(--wa)',off:'var(--mut)'};
+ return`<div class="card"><h2>Data health</h2>${src.map(s=>`<div class="row" style="padding:5px 0"><span><i class="dot" style="background:${col[s[1]]}"></i>${s[0]}</span><span class="mut">${s[2]}</span></div>`).join('')}
+ <div class="sw"><span>Simulate river gauge outage</span><input type="checkbox" ${S.outage?'checked':''} onchange="S.outage=this.checked;draw()"></div></div>
+ <div class="card"><h2>Alert thresholds</h2><p class="mut" style="margin:0 0 6px">Flood probability that triggers each level.</p>${[1,2,3,4].map(i=>`<div class="row"><span>${LV[i]}</span><b id="t${i}">${pc(TH[i])}</b></div><input type="range" min="5" max="95" value="${TH[i]*100}" aria-label="${LV[i]} threshold" oninput="TH[${i}]=+this.value/100;$('#t${i}').textContent=this.value+'%';bar()">`).join('')}</div>
+ <div class="card"><h2>Model center</h2><table><tr><th>Model</th><th>Status</th></tr><tr><td>Rainfall risk · baseline v0.3</td><td>Champion</td></tr><tr><td>Flood likelihood · v0.3</td><td>Champion</td></tr><tr><td>Flood likelihood · v0.4</td><td>Challenger</td></tr><tr><td>Inundation surrogate · v0.1</td><td>Testing</td></tr></table><p class="mut">Demo metrics: ROC-AUC 0.91, Brier 0.08, lead time about 3h. These are simulated.</p></div>
+ <div class="card"><h2>About this demo</h2><p class="mut" style="margin:0">All rainfall, river, forecast, risk and inundation values are simulated for a synthetic storm. Not for real decisions. Real data and validated models plug in through connectors.</p></div>`}};
+const TABS=[['home','⌂','Home'],['map','◎','Map'],['rivers','≈','Rivers'],['alerts','⚑','Alerts'],['more','☰','Settings']];
+function bar(){const t=S.t,m=M(t);$('#dt').textContent='12 Sep 2026 '+hh(S.t);$('#st').textContent=`Event hour +${t} · ${hh(t)}`;$('#ss').textContent=`Simulated · ${LV[cls(m.p)]} · ${pc(m.p)} flood probability`;$('#sl').value=t;$('#pb').textContent=S.play?'❚❚':'▶';
+ const n=alerts(t).filter(a=>!S.ack[a.k]).length;$('#nav').innerHTML=TABS.map(x=>`<button class="${S.tab==x[0]?'on':''}" onclick="S.tab='${x[0]}';draw();$('#main').scrollTop=0"><i>${x[1]}</i>${x[2]}${x[0]=='alerts'&&n?`<span class="bd">${n}</span>`:''}</button>`).join('')}
+function draw(){bar();const st=$('#main').scrollTop;$('#main').innerHTML=V[S.tab]();$('#main').scrollTop=st}
+function toggle(){if(!S.play&&S.t>=N)S.t=0;S.play=!S.play;draw()}
+setInterval(()=>{if(S.play){if(S.t<N)S.t++;else S.play=false;draw();if($('#sheet').classList.contains('on')&&0)0}},1200);
+draw();
+</script></body></html>
